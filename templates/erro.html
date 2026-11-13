@@ -1,0 +1,16 @@
+{% extends "base_publico.html" %}
+{% block titulo %}{{ codigo }} · {{ marca }}{% endblock %}
+
+{% block conteudo %}
+<section class="secao">
+  <div class="container erro">
+    <p class="erro__codigo">{{ codigo }}</p>
+    <h1 class="secao__titulo">{{ mensagem }}</h1>
+    <p class="secao__texto">Confira o endereço ou volte para a página de agendamento.</p>
+    <div class="heroi__botoes">
+      <a class="botao botao--ouro" href="{{ url_for('inicio') }}#agendar">Agendar horário</a>
+      <a class="botao botao--linha" href="{{ url_for('inicio') }}">Página inicial</a>
+    </div>
+  </div>
+</section>
+{% endblock %}

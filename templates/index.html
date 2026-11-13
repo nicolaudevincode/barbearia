@@ -1,0 +1,328 @@
+{% extends "base_publico.html" %}
+
+{% block conteudo %}
+{# ---------------------------------------------------------------- HERO #}
+<section class="heroi">
+  <div class="container heroi__grade">
+    <div class="heroi__texto">
+      <p class="selo">Barbearia · {{ cidade }}</p>
+      <h1 class="heroi__titulo">
+        Precisão em<br><span class="ouro">cada detalhe.</span>
+      </h1>
+      <p class="heroi__sub">
+        Corte, barba e sobrancelha com hora marcada. Escolha o serviço, o dia e o
+        horário — leva menos de um minuto e você já sai com o horário reservado.
+      </p>
+      <div class="heroi__botoes">
+        <a class="botao botao--ouro" href="#agendar">Agendar meu horário</a>
+        <a class="botao botao--linha" href="#servicos">Ver serviços</a>
+      </div>
+      <ul class="heroi__pontos">
+        <li>Hora marcada, sem fila</li>
+        <li>Confirmação na hora</li>
+        <li>Atendimento com o Gabriel</li>
+      </ul>
+    </div>
+
+    <div class="heroi__foto">
+      {# TROCAR: coloque a foto do ambiente em static/img/ambiente.jpg #}
+      <figure class="retrato" aria-label="Foto do ambiente da barbearia">
+        <div class="retrato__vazio">
+          <span>Foto do ambiente</span>
+          <small>TROCAR</small>
+        </div>
+        <figcaption>{{ assinatura }} · Seja bem-vindo</figcaption>
+      </figure>
+    </div>
+  </div>
+</section>
+
+{# ---------------------------------------------------------------- SERVIÇOS #}
+<section class="secao" id="servicos">
+  <div class="container">
+    <p class="secao__sobre">Serviços</p>
+    <h2 class="secao__titulo">O que você faz aqui</h2>
+    <p class="secao__texto">
+      Duração e valor de cada serviço. Toque em <strong>Agendar</strong> e o serviço
+      já entra escolhido no formulário.
+    </p>
+
+    <ul class="cartoes">
+      {% for s in servicos %}
+      <li class="cartao">
+        <div class="cartao__topo">
+          <h3 class="cartao__nome">{{ s.nome }}</h3>
+          <p class="cartao__preco">{{ moeda(s.preco_centavos) }}</p>
+        </div>
+        <p class="cartao__desc">{{ s.descricao }}</p>
+        <p class="cartao__duracao">
+          <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true" focusable="false">
+            <path fill="none" stroke="currentColor" stroke-width="1.6"
+                  d="M12 7v5l3 2M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18Z"/>
+          </svg>
+          {{ s.duracao_min }} minutos
+        </p>
+        <button class="botao botao--linha botao--largo" type="button"
+                data-escolher-servico="{{ s.id }}">
+          Agendar
+        </button>
+      </li>
+      {% endfor %}
+    </ul>
+    <p class="nota">Valores de exemplo — o barbeiro ajusta em Configurações, sem mexer no código.</p>
+  </div>
+</section>
+
+{# ---------------------------------------------------------------- CORTES #}
+<section class="secao secao--escura" id="cortes">
+  <div class="container">
+    <p class="secao__sobre">Galeria</p>
+    <h2 class="secao__titulo">Cortes que saem daqui</h2>
+    <p class="secao__texto">Fotos reais entram aqui assim que o Gabriel enviar os arquivos.</p>
+
+    {# TROCAR: troque cada .retrato por <img src="..." alt="..."> #}
+    <div class="galeria">
+      {% for i in range(1, 7) %}
+      <button class="galeria__item" type="button" data-foto="{{ loop.index }}">
+        <span class="galeria__vazio">
+          <span>Foto de corte {{ loop.index }}</span>
+          <small>TROCAR</small>
+        </span>
+      </button>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+{# ---------------------------------------------------------------- SOBRE #}
+<section class="secao" id="sobre">
+  <div class="container sobre">
+    <div class="sobre__foto">
+      {# TROCAR: foto do Gabriel em static/img/gabriel.jpg #}
+      <div class="retrato retrato--quadrado">
+        <div class="retrato__vazio">
+          <span>Foto do Gabriel</span>
+          <small>TROCAR</small>
+        </div>
+      </div>
+    </div>
+    <div class="sobre__texto">
+      <p class="secao__sobre">Quem corta</p>
+      <h2 class="secao__titulo">Gabriel Azevedo</h2>
+      <p>
+        Barbeiro, dono da {{ assinatura }}. Trabalha com degradê, tesoura e navalha,
+        sempre com o mesmo cuidado: entender o formato do rosto, alinhar o corte e
+        deixar o acabamento limpo.
+      </p>
+      <p>
+        Aqui você marca o horário e é atendido no horário. Sem espera, sem
+        improviso — elegância, confiança, qualidade e respeito.
+      </p>
+      <ul class="sobre__marcas">
+        <li>Degradê e cortes modernos</li>
+        <li>Barba na navalha</li>
+        <li>Acabamento no pezinho</li>
+      </ul>
+      <a class="botao botao--linha" href="https://www.instagram.com/{{ instagram }}/"
+         target="_blank" rel="noopener">Ver no Instagram</a>
+    </div>
+  </div>
+</section>
+
+{# ---------------------------------------------------------------- AGENDAMENTO #}
+<section class="secao secao--agendar" id="agendar">
+  <div class="container">
+    <p class="secao__sobre">Agendamento</p>
+    <h2 class="secao__titulo">Escolha o dia e o horário</h2>
+    <p class="secao__texto">Sem criar conta. Você recebe um código para guardar.</p>
+
+    <ol class="etapas" id="etapas" aria-label="Etapas do agendamento">
+      <li class="etapa etapa--ativa" data-etapa="1">
+        <span class="etapa__numero">1</span><span class="etapa__nome">Serviço</span>
+      </li>
+      <li class="etapa" data-etapa="2">
+        <span class="etapa__numero">2</span><span class="etapa__nome">Data</span>
+      </li>
+      <li class="etapa" data-etapa="3">
+        <span class="etapa__numero">3</span><span class="etapa__nome">Horário</span>
+      </li>
+      <li class="etapa" data-etapa="4">
+        <span class="etapa__numero">4</span><span class="etapa__nome">Confirmar</span>
+      </li>
+    </ol>
+
+    <div class="agendar">
+      {# -------- etapa 1 -------- #}
+      <div class="painel" id="painel1">
+        <h3 class="painel__titulo">Qual serviço você quer?</h3>
+        <ul class="opcoes opcoes--servico">
+          {% for s in servicos %}
+          <li>
+            <button class="opcao" type="button" data-servico="{{ s.id }}"
+                    data-nome="{{ s.nome }}" data-duracao="{{ s.duracao_min }}"
+                    data-preco="{{ moeda(s.preco_centavos) }}">
+              <span class="opcao__nome">{{ s.nome }}</span>
+              <span class="opcao__meta">{{ s.duracao_min }} min · {{ moeda(s.preco_centavos) }}</span>
+            </button>
+          </li>
+          {% endfor %}
+        </ul>
+        <noscript>
+          <p class="aviso">
+            Para agendar com o JavaScript desligado, chame no WhatsApp
+            <a href="https://wa.me/{{ whatsapp }}">({{ whatsapp_bonito }})</a>.
+          </p>
+        </noscript>
+      </div>
+
+      {# -------- etapa 2 -------- #}
+      <div class="painel" id="painel2" hidden>
+        <h3 class="painel__titulo">Escolha o dia</h3>
+        <div class="dias" id="listaDias" role="group" aria-label="Dias disponíveis"></div>
+        <p class="painel__vazio" id="diasVazio" hidden>
+          Nenhum dia aberto no período. Chame no WhatsApp para combinar.
+        </p>
+        <div class="painel__acoes">
+          <button class="botao botao--texto" type="button" data-voltar="1">Voltar</button>
+          <button class="botao botao--ouro" type="button" id="irHorarios" disabled>
+            Ver horários
+          </button>
+        </div>
+      </div>
+
+      {# -------- etapa 3 -------- #}
+      <div class="painel" id="painel3" hidden>
+        <h3 class="painel__titulo">Escolha o horário</h3>
+        <p class="painel__resumo" id="resumoData"></p>
+        <div class="horarios" id="listaHorarios" role="group" aria-label="Horários disponíveis">
+          <p class="carregando">Carregando horários…</p>
+        </div>
+        <div class="painel__acoes">
+          <button class="botao botao--texto" type="button" data-voltar="2">Voltar</button>
+          <button class="botao botao--ouro" type="button" id="irConfirmar" disabled>
+            Continuar
+          </button>
+        </div>
+      </div>
+
+      {# -------- etapa 4 -------- #}
+      <div class="painel" id="painel4" hidden>
+        <h3 class="painel__titulo">Confirme seus dados</h3>
+        <div class="resumo" id="resumoFinal"></div>
+
+        <form class="form" id="formAgendar" novalidate>
+          <div class="campo">
+            <label for="nome">Nome completo</label>
+            <input id="nome" name="nome" type="text" autocomplete="name"
+                   maxlength="80" required>
+          </div>
+          <div class="campo">
+            <label for="whatsapp">WhatsApp com DDD</label>
+            <input id="whatsapp" name="whatsapp" type="tel" inputmode="numeric"
+                   autocomplete="tel-national" placeholder="(73) 99999-9999" required>
+          </div>
+          <div class="campo campo--oculto" aria-hidden="true">
+            <label for="site">Não preencha este campo</label>
+            <input id="site" name="site" type="text" tabindex="-1" autocomplete="off">
+          </div>
+
+          <label class="check">
+            <input type="checkbox" id="consentimento" name="consentimento" required>
+            <span>
+              Concordo em ter meus dados usados para este agendamento, conforme a
+              <a href="{{ url_for('privacidade') }}" target="_blank" rel="noopener">política de privacidade</a>.
+            </span>
+          </label>
+
+          <p class="form__erro" id="erroForm" role="alert" hidden></p>
+
+          <div class="painel__acoes">
+            <button class="botao botao--texto" type="button" data-voltar="3">Voltar</button>
+            <button class="botao botao--ouro botao--grande" type="submit" id="confirmar">
+              Confirmar agendamento
+            </button>
+          </div>
+        </form>
+      </div>
+
+      {# -------- sucesso -------- #}
+      <div class="painel painel--sucesso" id="painel5" hidden>
+        <div class="sucesso__icone" aria-hidden="true">
+          <svg viewBox="0 0 24 24" width="34" height="34">
+            <path fill="none" stroke="currentColor" stroke-width="2"
+                  stroke-linecap="round" stroke-linejoin="round" d="m5 13 4 4L19 7"/>
+          </svg>
+        </div>
+        <h3 class="painel__titulo">Horário reservado!</h3>
+        <p class="sucesso__codigo">Código <strong id="codigoFinal">—</strong></p>
+        <div class="resumo" id="resumoSucesso"></div>
+        <div class="sucesso__acoes">
+          <a class="botao botao--ouro" id="btnIcs" href="#">Salvar no calendário</a>
+          <a class="botao botao--linha" id="btnWhats" href="#" target="_blank" rel="noopener">
+            Falar com o Gabriel
+          </a>
+        </div>
+        <button class="botao botao--texto" type="button" id="novoAgendamento">
+          Fazer outro agendamento
+        </button>
+      </div>
+    </div>
+  </div>
+</section>
+
+{# ---------------------------------------------------------------- CONTATO #}
+<section class="secao secao--escura" id="local">
+  <div class="container contato">
+    <div>
+      <p class="secao__sobre">Onde</p>
+      <h2 class="secao__titulo">Como chegar</h2>
+      <p class="contato__endereco">{{ endereco }}<br>{{ cidade }}</p>
+      <a class="botao botao--linha" href="https://www.google.com/maps/search/?api=1&query={{ (endereco ~ ' ' ~ cidade)|urlencode }}"
+         target="_blank" rel="noopener">Abrir no Google Maps</a>
+
+      <h3 class="contato__subtitulo">Horário de funcionamento</h3>
+      <ul class="horarios-lista">
+        {% for c in semana %}
+        <li>
+          <span>{{ DIAS_LONGOS[c.dia_semana]|capitalize }}</span>
+          <span>{% if c.aberto %}{{ c.abre }} – {{ c.fecha }}{% else %}Fechado{% endif %}</span>
+        </li>
+        {% endfor %}
+      </ul>
+      <p class="nota">Intervalo de almoço: das 11h às 13h (não há atendimento nesse período).</p>
+    </div>
+
+    <div>
+      {# TROCAR: quando tiver o endereço, cole aqui o iframe do Google Maps #}
+      <div class="mapa">
+        <span>Mapa da barbearia</span>
+        <small>TROCAR — inserir o mapa com o endereço real</small>
+      </div>
+      <div class="contato__caixa">
+        <p><strong>WhatsApp</strong><br>
+          <a href="https://wa.me/{{ whatsapp }}" target="_blank" rel="noopener">{{ whatsapp_bonito }}</a>
+        </p>
+        <p><strong>Instagram</strong><br>
+          <a href="https://www.instagram.com/{{ instagram }}/" target="_blank" rel="noopener">@{{ instagram }}</a>
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="lightbox" id="lightbox" hidden>
+  <div class="lightbox__caixa" role="dialog" aria-modal="true" aria-label="Foto ampliada">
+    <div class="lightbox__vazio">
+      <span id="lightboxTexto">Foto de corte</span>
+      <small>TROCAR — envie as fotos reais</small>
+    </div>
+    <button class="lightbox__fechar" type="button" id="lightboxFechar">Fechar</button>
+  </div>
+</div>
+
+<script type="application/json" id="dados">{{ dados|tojson }}</script>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/agendamento.js') }}?v=3" defer></script>
+{% endblock %}

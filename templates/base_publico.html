@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  {% block head %}{% endblock %}
+  <title>{% block titulo %}Agendar horário · {{ marca }}{% endblock %}</title>
+  <meta name="description" content="{% block descricao %}Agende seu corte, barba ou sobrancelha com {{ marca }}. Escolha o serviço, o dia e o horário em menos de um minuto.{% endblock %}">
+  <meta name="theme-color" content="#111111">
+  <link rel="canonical" href="{{ request.url_root.rstrip('/') }}{{ request.path }}">
+
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="{{ marca }} — {{ slogan }}">
+  <meta property="og:description" content="Agendamento online: escolha o serviço, o dia e o horário.">
+  <meta property="og:url" content="{{ request.url_root.rstrip('/') }}{{ request.path }}">
+  <meta property="og:image" content="{{ request.url_root.rstrip('/') }}{{ url_for('static', filename='img/og-barbearia.png') }}">
+  <meta property="og:locale" content="pt_BR">
+
+  <link rel="icon" href="{{ url_for('static', filename='img/icone.svg') }}" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="{{ url_for('static', filename='img/icone-192.png') }}">
+  <link rel="manifest" href="{{ url_for('static', filename='manifest.webmanifest') }}">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/estilo.css') }}?v=3">
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "HairSalon",
+    "name": "{{ marca }}",
+    "description": "{{ slogan }} Barbearia com agendamento online.",
+    "url": "{{ request.url_root.rstrip('/') }}/",
+    "telephone": "+{{ whatsapp }}",
+    "image": "{{ request.url_root.rstrip('/') }}{{ url_for('static', filename='img/og-barbearia.png') }}",
+    "address": {
+      "@type": "PostalAddress",
+      "streetAddress": "{{ endereco }}",
+      "addressLocality": "{{ cidade }}",
+      "addressCountry": "BR"
+    },
+    "sameAs": ["https://www.instagram.com/{{ instagram }}/"],
+    "priceRange": "$$"
+  }
+  </script>
+</head>
+<body>
+  <a class="pular" href="#conteudo">Pular para o conteúdo</a>
+
+  <header class="topo" id="topo">
+    <div class="topo__barra">
+      <div class="container topo__linha">
+        <a class="marca" href="{{ url_for('inicio') }}">
+          <span class="marca__poste" aria-hidden="true"></span>
+          <span class="marca__texto">
+            <strong>{{ marca }}</strong>
+            <small>{{ assinatura }}</small>
+          </span>
+        </a>
+
+        <button class="menu__botao" type="button" id="menuBotao"
+                aria-expanded="false" aria-controls="menuPrincipal">
+          <span class="menu__riscos" aria-hidden="true"></span>
+          <span class="sr-only">Abrir menu</span>
+        </button>
+
+        <nav class="menu" id="menuPrincipal" aria-label="Menu principal">
+          <a href="#servicos">Serviços</a>
+          <a href="#cortes">Cortes</a>
+          <a href="#sobre">Sobre</a>
+          <a href="#contato">Contato</a>
+          <a class="botao botao--ouro botao--pequeno" href="#agendar">Agendar horário</a>
+        </nav>
+      </div>
+    </div>
+  </header>
+
+  <main id="conteudo">
+    {% block conteudo %}{% endblock %}
+  </main>
+
+  <footer class="rodape" id="contato">
+    <div class="container rodape__grade">
+      <div>
+        <p class="rodape__marca">{{ marca }}</p>
+        <p class="rodape__assinatura">{{ assinatura }} · Seja bem-vindo!</p>
+        <p class="rodape__texto">{{ slogan }}</p>
+      </div>
+      <div>
+        <h2 class="rodape__titulo">Onde e quando</h2>
+        <p class="rodape__texto">{{ endereco }}<br>{{ cidade }}</p>
+        <p class="rodape__texto" id="horarioRodape">Horário: consulte a agenda abaixo.</p>
+      </div>
+      <div>
+        <h2 class="rodape__titulo">Contato</h2>
+        <ul class="rodape__lista">
+          <li><a href="https://wa.me/{{ whatsapp }}" target="_blank" rel="noopener">WhatsApp {{ whatsapp_bonito }}</a></li>
+          <li><a href="https://www.instagram.com/{{ instagram }}/" target="_blank" rel="noopener">Instagram @{{ instagram }}</a></li>
+          <li><a href="{{ url_for('privacidade') }}">Política de privacidade</a></li>
+          <li><a href="{{ url_for('login') }}">Área do barbeiro</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="container rodape__fim">
+      <p>© {{ ano }} {{ marca }}. Todos os direitos reservados.</p>
+      <p>CNPJ [A CONFIRMAR]</p>
+    </div>
+  </footer>
+
+  <a class="zap" href="https://wa.me/{{ whatsapp }}?text={{ ('Olá! Vim pelo site e quero agendar um horário.')|urlencode }}"
+     target="_blank" rel="noopener" aria-label="Falar no WhatsApp">
+    <svg viewBox="0 0 24 24" width="26" height="26" aria-hidden="true" focusable="false">
+      <path fill="currentColor" d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2Zm0 18a8 8 0 0 1-4.1-1.1l-.3-.2-3 .8.8-2.9-.2-.3A8 8 0 1 1 12 20Zm4.5-5.8c-.2-.1-1.4-.7-1.6-.8-.2-.1-.4-.1-.5.1l-.7.9c-.1.2-.3.2-.5.1-.7-.3-1.4-.7-2-1.5-.5-.7-.8-1.2-1.1-1.9-.1-.2 0-.4.1-.5l.5-.6c.1-.1.1-.3.1-.4l-.7-1.6c-.2-.4-.4-.4-.6-.4h-.5c-.2 0-.5.1-.7.4-.3.3-.9.9-.9 2.1s.9 2.4 1 2.6c.1.2 1.5 2.4 3.7 3.3 1.9.8 2.3.7 2.7.6.5-.1 1.4-.6 1.6-1.1.2-.5.2-1 .1-1.1-.1-.1-.2-.2-.4-.3Z"/>
+    </svg>
+  </a>
+
+  <script src="{{ url_for('static', filename='js/site.js') }}?v=3" defer></script>
+  {% block scripts %}{% endblock %}
+</body>
+</html>

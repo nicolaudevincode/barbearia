@@ -1,0 +1,108 @@
+{% extends "base_admin.html" %}
+{% block titulo %}Agendamentos{% endblock %}
+
+{% block conteudo %}
+<header class="pagina__cabeca">
+  <div>
+    <p class="pagina__sobre">Histórico</p>
+    <h1 class="pagina__titulo">Todos os agendamentos</h1>
+    <p class="pagina__data">{{ total }} resultado{% if total != 1 %}s{% endif %}</p>
+  </div>
+  <div class="pagina__acoes">
+    <a class="botao botao--ouro botao--pequeno" href="{{ url_for('admin_novo') }}">Novo agendamento</a>
+  </div>
+</header>
+
+<form class="filtros" method="get" action="{{ url_for('admin_agendamentos') }}">
+  <div class="campo">
+    <label for="busca">Nome, WhatsApp ou código</label>
+    <input id="busca" name="busca" type="search" value="{{ busca }}">
+  </div>
+  <div class="campo">
+    <label for="status">Status</label>
+    <select id="status" name="status">
+      <option value="">Todos</option>
+      {% for chave, rotulo in status_rotulo.items() %}
+      <option value="{{ chave }}" {% if status == chave %}selected{% endif %}>{{ rotulo }}</option>
+      {% endfor %}
+    </select>
+  </div>
+  <div class="campo">
+    <label for="servico_id">Serviço</label>
+    <select id="servico_id" name="servico_id">
+      <option value="">Todos</option>
+      {% for s in servicos %}
+      <option value="{{ s.id }}" {% if servico_id == s.id %}selected{% endif %}>{{ s.nome }}</option>
+      {% endfor %}
+    </select>
+  </div>
+  <div class="campo">
+    <label for="de">De</label>
+    <input id="de" name="de" type="date" value="{{ de }}">
+  </div>
+  <div class="campo">
+    <label for="ate">Até</label>
+    <input id="ate" name="ate" type="date" value="{{ ate }}">
+  </div>
+  <div class="filtros__acoes">
+    <button class="botao botao--ouro botao--pequeno" type="submit">Filtrar</button>
+    <a class="botao botao--texto botao--pequeno" href="{{ url_for('admin_agendamentos') }}">Limpar</a>
+  </div>
+</form>
+
+{% if agendamentos %}
+<div class="tabela-rolagem">
+  <table class="tabela">
+    <thead>
+      <tr>
+        <th scope="col">Dia</th>
+        <th scope="col">Hora</th>
+        <th scope="col">Cliente</th>
+        <th scope="col">Serviço</th>
+        <th scope="col">Valor</th>
+        <th scope="col">Status</th>
+        <th scope="col"><span class="sr-only">Ações</span></th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for a in agendamentos %}
+      <tr>
+        <td data-rotulo="Dia">{{ data_br(a.data) }}</td>
+        <td data-rotulo="Hora">{{ a.hora_inicio }}</td>
+        <td data-rotulo="Cliente">
+          <a href="{{ url_for('admin_detalhe', agendamento_id=a.id) }}">{{ a.cliente_nome }}</a>
+          <small class="tabela__sub">{{ whatsapp_formatado(a.cliente_whatsapp) }}</small>
+        </td>
+        <td data-rotulo="Serviço">{{ a.servico_nome }}</td>
+        <td data-rotulo="Valor">{{ moeda(a.preco_centavos) }}</td>
+        <td data-rotulo="Status">
+          <span class="selo-status selo-status--{{ a.status }}">{{ status_rotulo[a.status] }}</span>
+        </td>
+        <td>
+          <a class="botao botao--pequeno botao--texto"
+             href="{{ url_for('admin_detalhe', agendamento_id=a.id) }}">Abrir</a>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+{% if paginas > 1 %}
+<nav class="paginacao" aria-label="Paginação">
+  {% if pagina > 1 %}
+  <a class="botao botao--linha botao--pequeno"
+     href="{{ url_for('admin_agendamentos', busca=busca, status=status, servico_id=servico_id, de=de, ate=ate, pagina=pagina-1) }}">← Anterior</a>
+  {% endif %}
+  <span>Página {{ pagina }} de {{ paginas }}</span>
+  {% if pagina < paginas %}
+  <a class="botao botao--linha botao--pequeno"
+     href="{{ url_for('admin_agendamentos', busca=busca, status=status, servico_id=servico_id, de=de, ate=ate, pagina=pagina+1) }}">Próxima →</a>
+  {% endif %}
+</nav>
+{% endif %}
+
+{% else %}
+<p class="vazio">Nenhum agendamento encontrado com esses filtros.</p>
+{% endif %}
+{% endblock %}

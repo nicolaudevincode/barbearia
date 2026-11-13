@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex">
+  <title>Entrar no painel · {{ marca }}</title>
+  <meta name="theme-color" content="#111111">
+  <link rel="icon" href="{{ url_for('static', filename='img/icone.svg') }}" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/estilo.css') }}?v=3">
+</head>
+<body class="adm adm--login">
+  <main class="login">
+    <div class="login__caixa">
+      <a class="marca marca--login" href="{{ url_for('inicio') }}">
+        <span class="marca__poste" aria-hidden="true"></span>
+        <span class="marca__texto">
+          <strong>{{ marca }}</strong>
+          <small>{{ assinatura }}</small>
+        </span>
+      </a>
+
+      <h1 class="login__titulo">Área do barbeiro</h1>
+      <p class="login__texto">Entre para ver a agenda e os agendamentos.</p>
+
+      {% with mensagens = get_flashed_messages(with_categories=true) %}
+        {% for categoria, texto in mensagens %}
+        <p class="aviso aviso--{{ categoria }}" role="alert">{{ texto }}</p>
+        {% endfor %}
+      {% endwith %}
+
+      <form method="post" action="{{ url_for('login') }}{% if request.args.get('proximo') %}?proximo={{ request.args.get('proximo')|urlencode }}{% endif %}"
+            class="form">
+        <input type="hidden" name="csrf" value="{{ csrf_token }}">
+
+        <div class="campo">
+          <label for="usuario">Usuário</label>
+          <input id="usuario" name="usuario" type="text" autocomplete="username"
+                 autocapitalize="none" required autofocus>
+        </div>
+
+        <div class="campo">
+          <label for="senha">Senha</label>
+          <div class="campo__senha">
+            <input id="senha" name="senha" type="password" autocomplete="current-password" required>
+            <button class="campo__olho" type="button" id="mostrarSenha"
+                    aria-label="Mostrar senha" aria-pressed="false">Ver</button>
+          </div>
+        </div>
+
+        <button class="botao botao--ouro botao--largo botao--grande" type="submit">Entrar</button>
+      </form>
+
+      <p class="login__rodape"><a href="{{ url_for('inicio') }}">← Voltar ao site</a></p>
+    </div>
+  </main>
+
+  <script>
+    (function () {
+      var botao = document.getElementById('mostrarSenha');
+      var campo = document.getElementById('senha');
+      if (!botao || !campo) return;
+      botao.addEventListener('click', function () {
+        var visivel = campo.type === 'text';
+        campo.type = visivel ? 'password' : 'text';
+        botao.textContent = visivel ? 'Ver' : 'Ocultar';
+        botao.setAttribute('aria-pressed', String(!visivel));
+        botao.setAttribute('aria-label', visivel ? 'Mostrar senha' : 'Ocultar senha');
+        campo.focus();
+      });
+    })();
+  </script>
+</body>
+</html>

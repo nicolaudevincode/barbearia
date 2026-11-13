@@ -1,0 +1,34 @@
+# Publicação automática no Render (https://render.com)
+#
+# 1. Suba este projeto no GitHub.
+# 2. Render → New → Blueprint → escolha o repositório.
+# 3. Preencha ADMIN_SENHA quando o Render pedir.
+#
+# ATENÇÃO: o disco persistente (onde fica o banco SQLite) é recurso pago.
+# No plano gratuito os agendamentos somem quando o serviço reinicia.
+# Para começar de graça, use PythonAnywhere — veja docs/COMO-PUBLICAR.md.
+
+services:
+  - type: web
+    name: barbearia
+    runtime: python
+    plan: starter
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn wsgi:application --bind 0.0.0.0:$PORT --workers 2 --threads 4 --timeout 60
+    envVars:
+      - key: PYTHON_VERSION
+        value: "3.12.6"
+      - key: SECRET_KEY
+        generateValue: true
+      - key: ADMIN_USUARIO
+        value: gabriel
+      - key: ADMIN_SENHA
+        sync: false
+      - key: COOKIE_SECURE
+        value: "1"
+      - key: BARBEARIA_DB
+        value: /var/data/barbearia.db
+    disk:
+      name: dados
+      mountPath: /var/data
+      sizeGB: 1

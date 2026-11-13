@@ -1,0 +1,95 @@
+{% extends "base_admin.html" %}
+{% block titulo %}Semana{% endblock %}
+
+{% block conteudo %}
+<header class="pagina__cabeca">
+  <div>
+    <p class="pagina__sobre">Visão geral</p>
+    <h1 class="pagina__titulo">Semana de {{ segunda.day }}/{{ '%02d'|format(segunda.month) }}</h1>
+    <p class="pagina__data">{{ resumo.quantidade }} atendimentos · {{ moeda(resumo.total_centavos) }} previstos</p>
+  </div>
+  <div class="pagina__acoes">
+    <a class="botao botao--linha botao--pequeno" href="{{ url_for('admin_semana', ini=anterior) }}">← Semana anterior</a>
+    <a class="botao botao--linha botao--pequeno" href="{{ url_for('admin_semana') }}">Esta semana</a>
+    <a class="botao botao--linha botao--pequeno" href="{{ url_for('admin_semana', ini=proxima) }}">Próxima semana →</a>
+  </div>
+</header>
+
+<div class="grade-semana" role="region" aria-label="Grade da semana" tabindex="0">
+  <table class="tabela-semana">
+    <caption class="sr-only">Agendamentos da semana de {{ segunda.day }}/{{ segunda.month }}</caption>
+    <thead>
+      <tr>
+        <th scope="col">Hora</th>
+        {% for d in dias %}
+        <th scope="col" {% if d.hoje %}class="hoje"{% endif %}>
+          <span class="tabela-semana__dia">{{ DIAS_CURTOS[d.data.weekday()] }}</span>
+          <span class="tabela-semana__numero">{{ d.data.day }}</span>
+        </th>
+        {% endfor %}
+      </tr>
+    </thead>
+    <tbody>
+      {% for hora in horas %}
+      <tr>
+        <th scope="row">{{ hora }}</th>
+        {% for d in dias %}
+          {% set faixa = d.faixas|selectattr('hora', 'equalto', hora)|first %}
+          {% if not faixa or d.fechado %}
+          <td class="celula celula--vazia">—</td>
+          {% elif faixa.almoco %}
+          <td class="celula celula--almoco"><span>almoço</span></td>
+          {% elif d.agendamentos.get(hora) %}
+            {% set a = d.agendamentos[hora] %}
+            <td class="celula celula--ocupada celula--{{ a.status }}">
+              <a href="{{ url_for('admin_detalhe', agendamento_id=a.id) }}">
+                <strong>{{ a.cliente_nome.split()[0] }}</strong>
+                <small>{{ a.servico_nome }}</small>
+              </a>
+            </td>
+          {% else %}
+          <td class="celula celula--livre">
+            <a href="{{ url_for('admin_novo') }}?data={{ d.iso }}&hora={{ hora }}"
+               aria-label="Criar agendamento em {{ d.iso }} às {{ hora }}">livre</a>
+          </td>
+          {% endif %}
+        {% endfor %}
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+<section class="bloco lista-mobile">
+  <h2 class="bloco__titulo">Dia a dia</h2>
+  {% for d in dias %}
+  <article class="dia-card">
+    <h3>
+      {{ DIAS_LONGOS[d.data.weekday()]|capitalize }}, {{ d.data.day }}/{{ '%02d'|format(d.data.month) }}
+      {% if d.hoje %}<span class="selo-hoje">hoje</span>{% endif %}
+    </h3>
+    {% if d.fechado %}
+    <p class="vazio">Fechado.</p>
+    {% else %}
+      {% set lista = d.agendamentos.values()|list %}
+      {% if lista %}
+      <ul class="lista">
+        {% for a in lista|sort(attribute='hora_inicio') %}
+        <li class="linha">
+          <span class="linha__hora">{{ a.hora_inicio }}</span>
+          <span class="linha__principal">
+            <a href="{{ url_for('admin_detalhe', agendamento_id=a.id) }}">{{ a.cliente_nome }}</a>
+            <small>{{ a.servico_nome }}</small>
+          </span>
+          <span class="selo-status selo-status--{{ a.status }}">{{ status_rotulo[a.status] }}</span>
+        </li>
+        {% endfor %}
+      </ul>
+      {% else %}
+      <p class="vazio">Nenhum agendamento.</p>
+      {% endif %}
+    {% endif %}
+  </article>
+  {% endfor %}
+</section>
+{% endblock %}

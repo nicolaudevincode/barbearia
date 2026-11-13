@@ -1,0 +1,113 @@
+GUIA RÁPIDO DO PAINEL
+=====================
+
+Endereço do painel:  o mesmo site, com /admin no final
+Ex.:  https://seudominio.com.br/admin
+
+Usuário e senha: os que foram definidos na publicação.
+Troque a senha em Configurações → "Senha do painel".
+
+
+------------------------------------------------------------------
+1. VER O DIA
+------------------------------------------------------------------
+Ao entrar você já cai em "Hoje":
+  - quantos agendamentos tem
+  - quem é o próximo cliente
+  - quantos horários ainda estão livres
+  - quanto está previsto na semana
+
+Cada linha tem o botão "WhatsApp" que já abre a conversa com a mensagem pronta.
+
+
+------------------------------------------------------------------
+2. VER A SEMANA
+------------------------------------------------------------------
+Menu "Semana": grade com os dias e os horários.
+  - célula com nome = agendamento (toque para abrir)
+  - "livre" = pode marcar
+  - listras = intervalo de almoço
+  - "—" = dia fechado
+
+No celular a grade vira uma lista por dia.
+
+
+------------------------------------------------------------------
+3. CONFIRMAR / CANCELAR / MARCAR FALTA
+------------------------------------------------------------------
+Abra o agendamento (toque no nome) e use "Mudar status":
+  Agendado -> Confirmado -> Concluído
+  ou Cancelado / Faltou
+
+Cancelar libera o horário na hora para outro cliente.
+O motivo é opcional e fica anotado.
+
+
+------------------------------------------------------------------
+4. REMARCAR
+------------------------------------------------------------------
+No mesmo agendamento, escolha o novo dia e a nova hora e toque em "Remarcar".
+O sistema confere se está livre antes de salvar.
+
+
+------------------------------------------------------------------
+5. MARCAR UM CLIENTE QUE CHAMOU NO WHATSAPP
+------------------------------------------------------------------
+Botão "Novo agendamento" (no topo do painel):
+  serviço, dia, hora, nome e WhatsApp -> Criar agendamento.
+
+A hora precisa estar na grade (de 30 em 30 minutos).
+
+
+------------------------------------------------------------------
+6. BLOQUEAR UM HORÁRIO (consulta, almoço fora, folga)
+------------------------------------------------------------------
+Menu "Bloqueios":
+  - escolha o dia
+  - marque "Bloquear o dia inteiro" ou informe das/até
+  - escreva o motivo (opcional)
+  - Bloquear
+
+O horário some do site imediatamente. Para desfazer, "Remover".
+
+
+------------------------------------------------------------------
+7. MUDAR PREÇO, SERVIÇO OU HORÁRIO
+------------------------------------------------------------------
+Menu "Configurações":
+
+  Horário de funcionamento -> abre/fecha e almoço de cada dia da semana
+  Regras e dados do site  -> intervalo, antecedência mínima, dias à frente,
+                             nome do site, WhatsApp, Instagram, endereço
+  Serviços                -> criar, editar preço/duração, desativar
+  Senha do painel         -> trocar a senha
+  Notificações            -> ativar aviso no celular
+
+Nada disso precisa de programador. Salva e já vale.
+
+
+------------------------------------------------------------------
+8. RECEBER AVISO NO CELULAR
+------------------------------------------------------------------
+Android / computador:
+  1. abra o painel no navegador
+  2. toque em "Ativar notificações"
+  3. aceite a permissão
+
+iPhone (iOS 16.4 ou superior):
+  1. abra o painel no SAFARI
+  2. toque em Compartilhar (quadrado com a flecha)
+  3. "Adicionar à Tela de Início"
+  4. abra o painel pelo ícone que apareceu
+  5. toque em "Ativar notificações" e aceite
+
+Pronto: cada novo agendamento avisa na tela do celular, mesmo com o app fechado.
+
+
+------------------------------------------------------------------
+9. SE ALGO DER ERRADO
+------------------------------------------------------------------
+- "Horário ocupado": alguém marcou antes. Escolha outro.
+- "Muitas tentativas": espere alguns minutos (proteção contra robô).
+- Esqueceu a senha: quem publicou o site pode redefinir pelo servidor
+  (veja docs/COMO-PUBLICAR.md) ou criar outro usuário no banco.

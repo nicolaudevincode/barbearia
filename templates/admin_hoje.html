@@ -1,0 +1,85 @@
+{% extends "base_admin.html" %}
+{% block titulo %}Hoje{% endblock %}
+
+{% block conteudo %}
+<header class="pagina__cabeca">
+  <div>
+    <p class="pagina__sobre">{{ saudacao }}, {{ session.admin_nome.split()[0] }} 👊</p>
+    <h1 class="pagina__titulo">Agenda de hoje</h1>
+    <p class="pagina__data">{{ data_longa(hoje) }}</p>
+  </div>
+  <div class="pagina__acoes">
+    <a class="botao botao--ouro botao--pequeno" href="{{ url_for('admin_novo') }}">Novo agendamento</a>
+    <a class="botao botao--linha botao--pequeno" href="{{ url_for('admin_bloqueios') }}">Bloquear horário</a>
+  </div>
+</header>
+
+<ul class="numeros">
+  <li>
+    <span class="numeros__valor">{{ total_hoje }}</span>
+    <span class="numeros__rotulo">agendamentos hoje</span>
+  </li>
+  <li>
+    <span class="numeros__valor">{{ proximo.hora_inicio if proximo else '—' }}</span>
+    <span class="numeros__rotulo">
+      {% if proximo %}próximo: {{ proximo.cliente_nome.split()[0] }}{% else %}nenhum à frente{% endif %}
+    </span>
+  </li>
+  <li>
+    <span class="numeros__valor">{{ livres }}</span>
+    <span class="numeros__rotulo">horários livres</span>
+  </li>
+  <li>
+    <span class="numeros__valor">{{ moeda(semana.total_centavos) }}</span>
+    <span class="numeros__rotulo">previsto na semana</span>
+  </li>
+</ul>
+
+<section class="bloco">
+  <h2 class="bloco__titulo">Hoje, em ordem</h2>
+
+  {% if agendamentos %}
+  <ul class="lista">
+    {% for a in agendamentos %}
+    <li class="linha {% if proximo and a.id == proximo.id %}linha--proximo{% endif %}
+               {% if a.status in ('cancelado', 'faltou') %}linha--fraca{% endif %}">
+      <span class="linha__hora">{{ a.hora_inicio }}</span>
+      <span class="linha__principal">
+        <a href="{{ url_for('admin_detalhe', agendamento_id=a.id) }}">{{ a.cliente_nome }}</a>
+        <small>{{ a.servico_nome }} · {{ a.hora_inicio }}–{{ a.hora_fim }} · {{ moeda(a.preco_centavos) }}</small>
+      </span>
+      <span class="selo-status selo-status--{{ a.status }}">{{ status_rotulo[a.status] }}</span>
+      <span class="linha__acoes">
+        <a class="botao botao--pequeno botao--linha"
+           href="https://wa.me/{{ a.cliente_whatsapp }}?text={{ ('Olá, ' ~ a.cliente_nome.split()[0] ~ '! Confirmando seu horário hoje às ' ~ a.hora_inicio ~ '. Até logo!')|urlencode }}"
+           target="_blank" rel="noopener">WhatsApp</a>
+        <a class="botao botao--pequeno botao--texto"
+           href="{{ url_for('admin_detalhe', agendamento_id=a.id) }}">Abrir</a>
+      </span>
+    </li>
+    {% endfor %}
+  </ul>
+  {% else %}
+  <p class="vazio">
+    Nenhum agendamento para hoje. Os horários livres estão aparecendo no site
+    automaticamente.
+  </p>
+  {% endif %}
+</section>
+
+<section class="bloco">
+  <h2 class="bloco__titulo">Enviar o painel para o celular</h2>
+  <p class="bloco__texto">
+    Instalando o painel como aplicativo você recebe aviso no celular a cada novo
+    agendamento, mesmo com o site fechado.
+  </p>
+  <button class="botao botao--ouro botao--pequeno" type="button" id="ativarPush">
+    Ativar notificações
+  </button>
+  <p class="nota" id="pushStatus" role="status"></p>
+  <p class="nota">
+    No iPhone: abra no <strong>Safari</strong> → Compartilhar → <em>Adicionar à Tela de
+    Início</em> → abra pelo ícone e ative aqui. (iOS 16.4 ou superior.)
+  </p>
+</section>
+{% endblock %}

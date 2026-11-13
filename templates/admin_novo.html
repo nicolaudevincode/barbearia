@@ -1,0 +1,54 @@
+{% extends "base_admin.html" %}
+{% block titulo %}Novo agendamento{% endblock %}
+
+{% block conteudo %}
+<header class="pagina__cabeca">
+  <div>
+    <p class="pagina__sobre"><a href="{{ url_for('admin_hoje') }}">← Voltar ao painel</a></p>
+    <h1 class="pagina__titulo">Novo agendamento</h1>
+    <p class="pagina__data">Para quem chamou no WhatsApp ou no direct.</p>
+  </div>
+</header>
+
+<form class="form cartao-form" method="post" action="{{ url_for('admin_novo') }}">
+  <input type="hidden" name="csrf" value="{{ csrf_token }}">
+
+  <div class="campo">
+    <label for="servico_id">Serviço</label>
+    <select id="servico_id" name="servico_id" required>
+      {% for s in servicos %}
+      <option value="{{ s.id }}">{{ s.nome }} · {{ s.duracao_min }} min · {{ moeda(s.preco_centavos) }}</option>
+      {% endfor %}
+    </select>
+  </div>
+
+  <div class="campo-duplo">
+    <div class="campo">
+      <label for="data">Dia</label>
+      <input id="data" name="data" type="date" value="{{ pre_data }}" required>
+    </div>
+    <div class="campo">
+      <label for="hora">Hora</label>
+      <input id="hora" name="hora" type="time" step="1800" value="{{ pre_hora }}" required>
+    </div>
+  </div>
+  <p class="nota">A hora precisa estar na grade (08:00–10:30 e 13:00–17:30, de 30 em 30 min).</p>
+
+  <div class="campo">
+    <label for="nome">Nome do cliente</label>
+    <input id="nome" name="nome" type="text" maxlength="80" required>
+  </div>
+
+  <div class="campo">
+    <label for="whatsapp">WhatsApp com DDD</label>
+    <input id="whatsapp" name="whatsapp" type="tel" placeholder="(73) 99999-9999" required>
+  </div>
+
+  <div class="campo">
+    <label for="observacao">Observação (opcional)</label>
+    <input id="observacao" name="observacao" type="text" maxlength="300">
+  </div>
+
+  <button class="botao botao--ouro botao--grande" type="submit">Criar agendamento</button>
+</form>
+{% endblock %}

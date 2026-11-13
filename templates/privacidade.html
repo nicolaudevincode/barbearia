@@ -1,0 +1,69 @@
+{% extends "base_publico.html" %}
+{% block titulo %}Política de privacidade · {{ marca }}{% endblock %}
+{% block descricao %}Como a {{ marca }} usa os dados de quem agenda pelo site.{% endblock %}
+
+{% block conteudo %}
+<section class="secao">
+  <div class="container texto-legal">
+    <h1 class="secao__titulo">Política de privacidade</h1>
+    <p class="atualizado">Última atualização: novembro de 2026.</p>
+
+    <h2>1. Quais dados pedimos</h2>
+    <p>
+      Para reservar um horário pedimos apenas <strong>nome completo</strong> e
+      <strong>WhatsApp</strong>. Também guardamos o serviço escolhido, a data e o
+      horário. Não pedimos CPF, e-mail, endereço nem dados de cartão.
+    </p>
+
+    <h2>2. Para que usamos</h2>
+    <ul>
+      <li>Reservar o horário e evitar que duas pessoas peguem o mesmo.</li>
+      <li>Entrar em contato sobre o agendamento (confirmação, remarcação, atraso).</li>
+      <li>Montar a agenda interna do barbeiro.</li>
+    </ul>
+
+    <h2>3. Quem consegue ver</h2>
+    <p>
+      A página pública nunca mostra o nome ou o WhatsApp de outros clientes. Esses
+      dados aparecem apenas no painel restrito do barbeiro, protegido por login.
+      Nenhum dado é vendido ou compartilhado com terceiros para publicidade.
+    </p>
+
+    <h2>4. Onde ficam guardados</h2>
+    <p>
+      Ficam no banco de dados do próprio site, hospedado em servidor contratado
+      pela barbearia. O acesso é restrito ao responsável pelo atendimento.
+    </p>
+
+    <h2>5. Por quanto tempo</h2>
+    <p>
+      Os agendamentos são mantidos para histórico de atendimento. Você pode pedir
+      a exclusão dos seus dados a qualquer momento.
+    </p>
+
+    <h2>6. Seus direitos (LGPD)</h2>
+    <p>
+      Conforme a Lei 13.709/2018, você pode pedir confirmação, correção,
+      portabilidade ou exclusão dos seus dados. Basta falar com o barbeiro:
+    </p>
+    <p>
+      WhatsApp <a href="https://wa.me/{{ whatsapp }}" target="_blank" rel="noopener">{{ whatsapp_bonito }}</a>
+      · Instagram <a href="https://www.instagram.com/{{ instagram }}/" target="_blank" rel="noopener">@{{ instagram }}</a>
+    </p>
+
+    <h2>7. Cookies</h2>
+    <p>
+      O site público não usa cookies de publicidade. A área do barbeiro usa um
+      cookie de sessão para manter o login, apagado quando você sai.
+    </p>
+
+    <h2>8. Responsável</h2>
+    <p>
+      {{ marca }} — {{ endereco }}, {{ cidade }}.<br>
+      CNPJ [A CONFIRMAR].
+    </p>
+
+    <a class="botao botao--linha" href="{{ url_for('inicio') }}">Voltar ao site</a>
+  </div>
+</section>
+{% endblock %}

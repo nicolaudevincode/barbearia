@@ -1,0 +1,9 @@
+# Normaliza fim de linha (evita aviso a cada commit)
+* text=auto eol=lf
+
+*.bat  text eol=crlf
+*.cmd  text eol=crlf
+
+*.png  binary
+*.ico  binary
+*.db   binary

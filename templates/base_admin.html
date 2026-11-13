@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex">
+  <title>{% block titulo %}Painel{% endblock %} · {{ marca }}</title>
+  <meta name="theme-color" content="#111111">
+  <link rel="icon" href="{{ url_for('static', filename='img/icone.svg') }}" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="{{ url_for('static', filename='img/icone-192.png') }}">
+  <link rel="manifest" href="{{ url_for('static', filename='manifest-painel.webmanifest') }}">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/estilo.css') }}?v=3">
+</head>
+<body class="adm">
+  <a class="pular" href="#painel">Pular para o conteúdo</a>
+
+  <header class="adm__topo">
+    <div class="container adm__linha">
+      <a class="marca" href="{{ url_for('admin_hoje') }}">
+        <span class="marca__poste" aria-hidden="true"></span>
+        <span class="marca__texto">
+          <strong>{{ marca }}</strong>
+          <small>painel</small>
+        </span>
+      </a>
+
+      <button class="menu__botao" type="button" id="menuBotao" aria-expanded="false"
+              aria-controls="menuAdmin">
+        <span class="menu__riscos" aria-hidden="true"></span>
+        <span class="sr-only">Abrir menu do painel</span>
+      </button>
+
+      <nav class="adm__menu" id="menuAdmin" aria-label="Menu do painel">
+        <a href="{{ url_for('admin_hoje') }}"
+           {% if request.endpoint == 'admin_hoje' %}aria-current="page"{% endif %}>Hoje</a>
+        <a href="{{ url_for('admin_semana') }}"
+           {% if request.endpoint == 'admin_semana' %}aria-current="page"{% endif %}>Semana</a>
+        <a href="{{ url_for('admin_agendamentos') }}"
+           {% if request.endpoint == 'admin_agendamentos' %}aria-current="page"{% endif %}>Agendamentos</a>
+        <a href="{{ url_for('admin_bloqueios') }}"
+           {% if request.endpoint == 'admin_bloqueios' %}aria-current="page"{% endif %}>Bloqueios</a>
+        <a href="{{ url_for('admin_configuracoes') }}"
+           {% if request.endpoint == 'admin_configuracoes' %}aria-current="page"{% endif %}>Configurações</a>
+        <a href="{{ url_for('inicio') }}" target="_blank" rel="noopener">Ver site</a>
+        <form method="post" action="{{ url_for('logout') }}" class="adm__sair">
+          <input type="hidden" name="csrf" value="{{ csrf_token }}">
+          <button class="botao botao--texto botao--pequeno" type="submit">Sair</button>
+        </form>
+      </nav>
+    </div>
+  </header>
+
+  <div class="novidade" id="novidade" hidden role="status">
+    <span id="novidadeTexto">Novo agendamento chegou.</span>
+    <button class="botao botao--pequeno botao--ouro" type="button" id="novidadeRecarregar">
+      Atualizar
+    </button>
+  </div>
+
+  <main class="container adm__conteudo" id="painel">
+    {% with mensagens = get_flashed_messages(with_categories=true) %}
+      {% if mensagens %}
+      <div class="avisos">
+        {% for categoria, texto in mensagens %}
+        <p class="aviso aviso--{{ categoria }}">{{ texto }}</p>
+        {% endfor %}
+      </div>
+      {% endif %}
+    {% endwith %}
+
+    {% block conteudo %}{% endblock %}
+  </main>
+
+  <script src="{{ url_for('static', filename='js/site.js') }}?v=3" defer></script>
+  <script src="{{ url_for('static', filename='js/painel.js') }}?v=3" defer></script>
+  {% block scripts %}{% endblock %}
+</body>
+</html>

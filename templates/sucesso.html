@@ -1,0 +1,48 @@
+{% extends "base_publico.html" %}
+{% block titulo %}Agendamento {{ ag.codigo }} · {{ marca }}{% endblock %}
+{% block descricao %}Seu horário na {{ marca }} está reservado.{% endblock %}
+
+{% block head %}
+<meta name="robots" content="noindex">
+{% endblock %}
+
+{% block conteudo %}
+<section class="secao secao--agendar">
+  <div class="container">
+    <div class="painel painel--sucesso" style="max-width:640px;margin:0 auto;">
+      <div class="sucesso__icone" aria-hidden="true">
+        <svg viewBox="0 0 24 24" width="34" height="34">
+          <path fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round" d="m5 13 4 4L19 7"/>
+        </svg>
+      </div>
+      <h1 class="painel__titulo">Horário reservado!</h1>
+      <p class="sucesso__codigo">Código <strong>{{ ag.codigo }}</strong></p>
+
+      <dl class="resumo">
+        <div><dt>Serviço</dt><dd>{{ ag.servico_nome }}</dd></div>
+        <div><dt>Dia</dt><dd>{{ data_longa(ag.data) }}</dd></div>
+        <div><dt>Horário</dt><dd>{{ ag.hora_inicio }} às {{ ag.hora_fim }}</dd></div>
+        <div><dt>Nome</dt><dd>{{ ag.cliente_nome }}</dd></div>
+        <div><dt>Situação</dt><dd>{{ status_rotulo[ag.status] }}</dd></div>
+      </dl>
+
+      <div class="sucesso__acoes">
+        <a class="botao botao--ouro" href="{{ url_for('agendamento_ics', codigo=ag.codigo) }}">
+          Salvar no calendário
+        </a>
+        <a class="botao botao--linha" target="_blank" rel="noopener"
+           href="https://wa.me/{{ whatsapp }}?text={{ ('Olá! Sou ' ~ ag.cliente_nome ~ ' e acabei de agendar ' ~ ag.servico_nome ~ ' para ' ~ data_br(ag.data) ~ ' às ' ~ ag.hora_inicio ~ '. Código ' ~ ag.codigo ~ '.')|urlencode }}">
+          Falar com o Gabriel
+        </a>
+      </div>
+
+      <p class="nota">
+        Guarde o código <strong>{{ ag.codigo }}</strong>. Se precisar remarcar, fale no
+        WhatsApp informando esse código.
+      </p>
+      <a class="botao botao--texto" href="{{ url_for('inicio') }}">Voltar ao início</a>
+    </div>
+  </div>
+</section>
+{% endblock %}

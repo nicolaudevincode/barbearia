@@ -1,0 +1,264 @@
+{% extends "base_admin.html" %}
+{% block titulo %}Configurações{% endblock %}
+
+{% block conteudo %}
+<header class="pagina__cabeca">
+  <div>
+    <p class="pagina__sobre">Ajustes</p>
+    <h1 class="pagina__titulo">Configurações</h1>
+    <p class="pagina__data">Tudo aqui vale na hora, sem mexer no código.</p>
+  </div>
+</header>
+
+{# ------------------------------------------------------------- HORÁRIOS #}
+<section class="bloco">
+  <h2 class="bloco__titulo">Horário de funcionamento</h2>
+  <form method="post" action="{{ url_for('admin_configuracoes') }}">
+    <input type="hidden" name="csrf" value="{{ csrf_token }}">
+    <input type="hidden" name="acao" value="horarios">
+
+    <div class="tabela-rolagem">
+      <table class="tabela tabela--config">
+        <thead>
+          <tr>
+            <th scope="col">Dia</th>
+            <th scope="col">Aberto</th>
+            <th scope="col">Abre</th>
+            <th scope="col">Fecha</th>
+            <th scope="col">Almoço de</th>
+            <th scope="col">até</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for c in semana %}
+          <tr>
+            <th scope="row">{{ DIAS_LONGOS[c.dia_semana]|capitalize }}</th>
+            <td data-rotulo="Aberto">
+              <label class="check check--compacto">
+                <input type="checkbox" name="aberto_{{ c.dia_semana }}" value="1"
+                       {% if c.aberto %}checked{% endif %}>
+                <span>Abre</span>
+              </label>
+            </td>
+            <td data-rotulo="Abre"><input class="entrada-curta" type="time" step="1800"
+                   name="abre_{{ c.dia_semana }}" value="{{ c.abre }}"
+                   aria-label="Hora de abrir {{ DIAS_LONGOS[c.dia_semana] }}"></td>
+            <td data-rotulo="Fecha"><input class="entrada-curta" type="time" step="1800"
+                   name="fecha_{{ c.dia_semana }}" value="{{ c.fecha }}"
+                   aria-label="Hora de fechar {{ DIAS_LONGOS[c.dia_semana] }}"></td>
+            <td data-rotulo="Almoço de"><input class="entrada-curta" type="time" step="1800"
+                   name="almoco_inicio_{{ c.dia_semana }}" value="{{ c.almoco_inicio }}"
+                   aria-label="Início do almoço {{ DIAS_LONGOS[c.dia_semana] }}"></td>
+            <td data-rotulo="até"><input class="entrada-curta" type="time" step="1800"
+                   name="almoco_fim_{{ c.dia_semana }}" value="{{ c.almoco_fim }}"
+                   aria-label="Fim do almoço {{ DIAS_LONGOS[c.dia_semana] }}"></td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    <button class="botao botao--ouro botao--pequeno" type="submit">Salvar horários</button>
+  </form>
+</section>
+
+{# ------------------------------------------------------------- REGRAS #}
+<section class="bloco">
+  <h2 class="bloco__titulo">Regras e dados do site</h2>
+  <form method="post" action="{{ url_for('admin_configuracoes') }}" class="form form--grade">
+    <input type="hidden" name="csrf" value="{{ csrf_token }}">
+    <input type="hidden" name="acao" value="globais">
+
+    <div class="campo">
+      <label for="intervalo_min">Intervalo entre horários (minutos)</label>
+      <input id="intervalo_min" name="intervalo_min" type="number" min="10" max="120"
+             value="{{ gerais.intervalo_min }}">
+    </div>
+    <div class="campo">
+      <label for="antecedencia_min">Antecedência mínima (minutos)</label>
+      <input id="antecedencia_min" name="antecedencia_min" type="number" min="0" max="1440"
+             value="{{ gerais.antecedencia_min }}">
+    </div>
+    <div class="campo">
+      <label for="janela_dias">Quantos dias à frente aceitar</label>
+      <input id="janela_dias" name="janela_dias" type="number" min="1" max="180"
+             value="{{ gerais.janela_dias }}">
+    </div>
+
+    <div class="campo">
+      <label for="marca">Nome no site</label>
+      <input id="marca" name="marca" type="text" maxlength="60" value="{{ gerais.marca }}">
+    </div>
+    <div class="campo">
+      <label for="assinatura">Assinatura (logo)</label>
+      <input id="assinatura" name="assinatura" type="text" maxlength="60" value="{{ gerais.assinatura }}">
+    </div>
+    <div class="campo">
+      <label for="slogan">Frase de destaque</label>
+      <input id="slogan" name="slogan" type="text" maxlength="120" value="{{ gerais.slogan }}">
+    </div>
+    <div class="campo">
+      <label for="whatsapp">WhatsApp (só números, com 55)</label>
+      <input id="whatsapp" name="whatsapp" type="text" inputmode="numeric"
+             value="{{ gerais.whatsapp }}" placeholder="5573999999999">
+    </div>
+    <div class="campo">
+      <label for="instagram">Instagram (sem @)</label>
+      <input id="instagram" name="instagram" type="text" maxlength="60" value="{{ gerais.instagram }}">
+    </div>
+    <div class="campo">
+      <label for="endereco">Endereço</label>
+      <input id="endereco" name="endereco" type="text" maxlength="160" value="{{ gerais.endereco }}">
+    </div>
+    <div class="campo">
+      <label for="cidade">Cidade</label>
+      <input id="cidade" name="cidade" type="text" maxlength="80" value="{{ gerais.cidade }}">
+    </div>
+
+    <div class="form__rodape">
+      <button class="botao botao--ouro botao--pequeno" type="submit">Salvar</button>
+    </div>
+  </form>
+</section>
+
+{# ------------------------------------------------------------- SERVIÇOS #}
+<section class="bloco">
+  <h2 class="bloco__titulo">Serviços</h2>
+  <p class="bloco__texto">
+    Duração em minutos e preço em reais. Desmarcar "Ativo" esconde o serviço do site.
+  </p>
+
+  <ul class="servicos-admin">
+    {% for s in servicos %}
+    <li class="servico-admin">
+      <form method="post" action="{{ url_for('admin_configuracoes') }}" class="servico-admin__form">
+        <input type="hidden" name="csrf" value="{{ csrf_token }}">
+        <input type="hidden" name="acao" value="servico_editar">
+        <input type="hidden" name="servico_id" value="{{ s.id }}">
+
+        <div class="campo">
+          <label for="nome_{{ s.id }}">Nome</label>
+          <input id="nome_{{ s.id }}" name="nome" type="text" maxlength="80" value="{{ s.nome }}" required>
+        </div>
+        <div class="campo">
+          <label for="desc_{{ s.id }}">Descrição</label>
+          <input id="desc_{{ s.id }}" name="descricao" type="text" maxlength="160" value="{{ s.descricao }}">
+        </div>
+        <div class="campo campo--curto">
+          <label for="dur_{{ s.id }}">Minutos</label>
+          <input id="dur_{{ s.id }}" name="duracao_min" type="number" min="10" step="10"
+                 value="{{ s.duracao_min }}">
+        </div>
+        <div class="campo campo--curto">
+          <label for="preco_{{ s.id }}">Preço (R$)</label>
+          <input id="preco_{{ s.id }}" name="preco" type="text" inputmode="decimal"
+                 value="{{ '%.2f'|format(s.preco_centavos / 100) }}">
+        </div>
+        <div class="campo campo--curto">
+          <label for="ordem_{{ s.id }}">Ordem</label>
+          <input id="ordem_{{ s.id }}" name="ordem" type="number" min="1" value="{{ s.ordem }}">
+        </div>
+        <label class="check check--compacto">
+          <input type="checkbox" name="ativo" value="1" {% if s.ativo %}checked{% endif %}>
+          <span>Ativo</span>
+        </label>
+        <div class="servico-admin__acoes">
+          <button class="botao botao--linha botao--pequeno" type="submit">Salvar</button>
+        </div>
+      </form>
+
+      <form method="post" action="{{ url_for('admin_configuracoes') }}"
+            onsubmit="return confirm('Remover o serviço {{ s.nome }}?');">
+        <input type="hidden" name="csrf" value="{{ csrf_token }}">
+        <input type="hidden" name="acao" value="servico_excluir">
+        <input type="hidden" name="servico_id" value="{{ s.id }}">
+        <button class="botao botao--texto botao--pequeno" type="submit">Remover</button>
+      </form>
+    </li>
+    {% endfor %}
+  </ul>
+
+  <h3 class="bloco__subtitulo">Adicionar serviço</h3>
+  <form method="post" action="{{ url_for('admin_configuracoes') }}" class="form form--grade">
+    <input type="hidden" name="csrf" value="{{ csrf_token }}">
+    <input type="hidden" name="acao" value="servico_novo">
+
+    <div class="campo">
+      <label for="novo_nome">Nome</label>
+      <input id="novo_nome" name="nome" type="text" maxlength="80" required>
+    </div>
+    <div class="campo">
+      <label for="novo_desc">Descrição</label>
+      <input id="novo_desc" name="descricao" type="text" maxlength="160">
+    </div>
+    <div class="campo campo--curto">
+      <label for="novo_dur">Minutos</label>
+      <input id="novo_dur" name="duracao_min" type="number" min="10" step="10" value="30">
+    </div>
+    <div class="campo campo--curto">
+      <label for="novo_preco">Preço (R$)</label>
+      <input id="novo_preco" name="preco" type="text" inputmode="decimal" value="0,00">
+    </div>
+    <div class="campo campo--curto">
+      <label for="novo_ordem">Ordem</label>
+      <input id="novo_ordem" name="ordem" type="number" min="1" value="99">
+    </div>
+    <div class="form__rodape">
+      <button class="botao botao--ouro botao--pequeno" type="submit">Adicionar</button>
+    </div>
+  </form>
+</section>
+
+{# ------------------------------------------------------------- SENHA #}
+<section class="bloco">
+  <h2 class="bloco__titulo">Senha do painel</h2>
+  <form method="post" action="{{ url_for('admin_configuracoes') }}" class="form form--grade">
+    <input type="hidden" name="csrf" value="{{ csrf_token }}">
+    <input type="hidden" name="acao" value="senha">
+
+    <div class="campo">
+      <label for="senha_atual">Senha atual</label>
+      <input id="senha_atual" name="senha_atual" type="password" autocomplete="current-password" required>
+    </div>
+    <div class="campo">
+      <label for="senha_nova">Nova senha (mínimo 8)</label>
+      <input id="senha_nova" name="senha_nova" type="password" minlength="8"
+             autocomplete="new-password" required>
+    </div>
+    <div class="campo">
+      <label for="senha_confirma">Repetir a nova senha</label>
+      <input id="senha_confirma" name="senha_confirma" type="password" minlength="8"
+             autocomplete="new-password" required>
+    </div>
+    <div class="form__rodape">
+      <button class="botao botao--ouro botao--pequeno" type="submit">Alterar senha</button>
+    </div>
+  </form>
+</section>
+
+{# ------------------------------------------------------------- PUSH #}
+<section class="bloco">
+  <h2 class="bloco__titulo">Notificações no celular</h2>
+  {% if push_disponivel %}
+  <p class="bloco__texto">
+    {{ aparelhos }} aparelho{% if aparelhos != 1 %}s{% endif %} cadastrado{% if aparelhos != 1 %}s{% endif %}.
+    Ative neste aparelho para receber aviso de cada novo agendamento.
+  </p>
+  <button class="botao botao--ouro botao--pequeno" type="button" id="ativarPush">
+    Ativar neste aparelho
+  </button>
+  <button class="botao botao--linha botao--pequeno" type="button" id="testarPush">
+    Enviar teste
+  </button>
+  <p class="nota" id="pushStatus" role="status"></p>
+  <p class="nota">
+    iPhone: instale pelo Safari em <em>Adicionar à Tela de Início</em> e ative por lá
+    (iOS 16.4+). Android e computador funcionam direto no navegador.
+  </p>
+  {% else %}
+  <p class="aviso aviso--erro">
+    A biblioteca <code>pywebpush</code> não está instalada neste servidor, então as
+    notificações estão desligadas. Instale com <code>pip install -r requirements.txt</code>.
+  </p>
+  {% endif %}
+</section>
+{% endblock %}

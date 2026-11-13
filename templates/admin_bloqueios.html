@@ -1,0 +1,74 @@
+{% extends "base_admin.html" %}
+{% block titulo %}Bloqueios{% endblock %}
+
+{% block conteudo %}
+<header class="pagina__cabeca">
+  <div>
+    <p class="pagina__sobre">Agenda</p>
+    <h1 class="pagina__titulo">Bloquear horários</h1>
+    <p class="pagina__data">Folga, compromisso, almoço fora do normal ou feriado.</p>
+  </div>
+</header>
+
+<div class="duas-colunas">
+  <section class="bloco">
+    <h2 class="bloco__titulo">Novo bloqueio</h2>
+
+    <form class="form" method="post" action="{{ url_for('admin_bloqueios') }}">
+      <input type="hidden" name="csrf" value="{{ csrf_token }}">
+
+      <div class="campo">
+        <label for="data">Dia</label>
+        <input id="data" name="data" type="date" value="{{ hoje }}" required>
+      </div>
+
+      <label class="check">
+        <input type="checkbox" id="dia_inteiro" name="dia_inteiro" value="1">
+        <span>Bloquear o dia inteiro</span>
+      </label>
+
+      <div class="campo-duplo" id="camposHorario">
+        <div class="campo">
+          <label for="hora_inicio">Das</label>
+          <input id="hora_inicio" name="hora_inicio" type="time" step="1800" value="13:00">
+        </div>
+        <div class="campo">
+          <label for="hora_fim">Até</label>
+          <input id="hora_fim" name="hora_fim" type="time" step="1800" value="14:00">
+        </div>
+      </div>
+
+      <div class="campo">
+        <label for="motivo">Motivo (opcional)</label>
+        <input id="motivo" name="motivo" type="text" maxlength="120" placeholder="Ex.: consulta médica">
+      </div>
+
+      <button class="botao botao--ouro" type="submit">Bloquear</button>
+    </form>
+    <p class="nota">O horário bloqueado some da página pública na hora.</p>
+  </section>
+
+  <section class="bloco">
+    <h2 class="bloco__titulo">Bloqueios futuros</h2>
+    {% if bloqueios %}
+    <ul class="lista">
+      {% for b in bloqueios %}
+      <li class="linha">
+        <span class="linha__hora">{{ data_br(b.data) }}</span>
+        <span class="linha__principal">
+          <strong>{% if b.hora_inicio %}{{ b.hora_inicio }} às {{ b.hora_fim }}{% else %}Dia inteiro{% endif %}</strong>
+          <small>{{ b.motivo or 'Sem motivo informado' }}</small>
+        </span>
+        <form method="post" action="{{ url_for('admin_bloqueio_excluir', bloqueio_id=b.id) }}">
+          <input type="hidden" name="csrf" value="{{ csrf_token }}">
+          <button class="botao botao--texto botao--pequeno" type="submit">Remover</button>
+        </form>
+      </li>
+      {% endfor %}
+    </ul>
+    {% else %}
+    <p class="vazio">Nenhum bloqueio marcado.</p>
+    {% endif %}
+  </section>
+</div>
+{% endblock %}
