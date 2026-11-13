@@ -32,3 +32,6 @@ venv/
 Thumbs.db
 desktop.ini
 .DS_Store
+
+# Ferramentas locais (cloudflared etc.)
+.local/

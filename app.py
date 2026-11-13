@@ -15,7 +15,9 @@ from flask import (
     Flask, abort, flash, g, jsonify, redirect, render_template, request,
     send_from_directory, session, url_for,
 )
+from werkzeug.middleware.proxy_fix import ProxyFix
 from werkzeug.security import check_password_hash, generate_password_hash
+from urllib.parse import urlsplit
 
 import push
 import rules
@@ -49,6 +51,10 @@ def _segredo():
 
 
 app.secret_key = os.environ.get("SECRET_KEY") or _segredo()
+
+# Funciona atrás de proxy/reverse-proxy (Cloudflare, Nginx, PythonAnywhere...):
+# usa os cabeçalhos X-Forwarded-* para saber o endereço e o protocolo reais.
+app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1, x_host=1)
 
 
 def db():
@@ -103,6 +109,21 @@ app.jinja_env.globals.update(
 )
 
 
+def _hosts_aceitos():
+    """Hosts considerados "o próprio site" (funciona atrás de proxy/túnel)."""
+    hosts = set()
+    for valor in (
+        request.host,
+        request.headers.get("Host", ""),
+        request.headers.get("X-Forwarded-Host", ""),
+    ):
+        for parte in (valor or "").split(","):
+            limpo = parte.strip().lower()
+            if limpo:
+                hosts.add(limpo)
+    return hosts
+
+
 @app.before_request
 def _protecoes():
     # CSRF nos formulários (as rotas /api usam JSON e checam a origem)
@@ -114,8 +135,10 @@ def _protecoes():
 
     if request.method == "POST":
         origem = request.headers.get("Origin")
-        if origem and origem.rstrip("/") != request.host_url.rstrip("/"):
-            abort(403)
+        if origem:
+            de = urlsplit(origem)
+            if de.netloc and de.netloc.lower() not in _hosts_aceitos():
+                abort(403)
 
 
 def admin_necessario():

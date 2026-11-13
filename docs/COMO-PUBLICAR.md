@@ -80,6 +80,27 @@ por isso o render.yaml já pede o plano "starter".
 
 
 ------------------------------------------------------------------
+TESTAR RÁPIDO NO CELULAR (LINK TEMPORÁRIO, SEM CONTA)
+------------------------------------------------------------------
+
+Serve para mostrar o site funcionando hoje, inclusive para o Gabriel,
+sem contratar nada. NÃO é hospedagem definitiva: o endereço muda e o site
+sai do ar quando o computador desligar.
+
+1. Deixe o site rodando no computador:  py app.py
+2. Em outro terminal (a pasta .local é criada na primeira vez):
+
+   .local\cloudflared.exe tunnel --url http://127.0.0.1:8000 --no-autoupdate
+
+3. Copie o endereço https://algo-algo-algo.trycloudflare.com que aparecer.
+4. Abra no celular. O painel é o mesmo endereço com /admin no final.
+5. Para encerrar: Ctrl+C no terminal do cloudflared.
+
+Enquanto isso, o site também responde na rede de casa:
+http://IP-DO-COMPUTADOR:8000  (ex.: http://192.168.0.108:8000)
+
+
+------------------------------------------------------------------
 ATUALIZAR O SITE DEPOIS DE MUDAR O CÓDIGO
 ------------------------------------------------------------------
 
