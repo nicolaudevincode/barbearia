@@ -1,17 +1,60 @@
 COMO PUBLICAR O SITE
 ====================
 
-O sistema é Python + Flask + SQLite. Não roda em GitHub Pages (que só serve
-arquivos parados) e não roda na Vercel (que não guarda arquivos entre reinícios).
+O sistema é Python + Flask. Duas hospedagens:
 
-Duas opções que funcionam de verdade:
-
-  A) PythonAnywhere  — GRÁTIS, guarda o banco, indicado para começar
-  B) Render          — pago (~US$ 7/mês) com disco próprio, mais robusto
+  A) Vercel  — desde 13/11/2026 o projeto já está PREPARADO para ela
+               (api/index.py, vercel.json, Postgres opcional)
+  B) PythonAnywhere — mantém o SQLite e é GRÁTIS hoje
 
 
 ------------------------------------------------------------------
-A) PYTHONANYWHERE (grátis, recomendado para começar)
+A) VERCEL (opção do Gabriel: "azevedodocorte.vercel.app")
+------------------------------------------------------------------
+
+O que a Vercel precisa do projeto:
+
+  • enviou GitHub → Vercel (branch main)
+  • banco: PostgreSQL (nunca SQLite) — URL na variável POSTGRES_URL
+
+PASSO A PASSO (uma vez):
+
+1. Conta na Vercel: https://vercel.com (login com o GitHub)
+
+2. Crie o token: https://vercel.com/account/tokens
+   (escolha "Full Account" para permitir criar projetos e variáveis)
+
+3. No painel Vercel, abra o projeto (ou crie com o nome azevedodocorte)
+   e vá em  Settings → Environment Variables  e crie:
+
+     POSTGRES_URL  (o sistema aceita isso; veja passo 4)
+
+   e, para ter a URL automaticamente, no passo 4 o Vercel cria POSTGRES_URL
+   sozinho quando você criar o banco "Postgres" no projeto.
+
+4. No projeto:  Storage → Create Database → Postgres (Neon)
+   Clicar em "Connect" no projeto: a Vercel já injeta POSTGRES_URL.
+
+5. Variáveis extras que recomendamos (Settings → Environment Variables):
+
+     SECRET_KEY      -> texto longo aleatório (protege o login)
+     COOKIE_SECURE   -> 1
+     ADMIN_USUARIO   -> gabriel
+     ADMIN_SENHA     -> senha que o Gabriel escolher (mín. 8)
+
+6. Deploy: vercel tab → "Deploy" (ou push na branch main, se o projeto
+   estiver ligado ao GitHub)
+
+7. Compartilhar: https://azevedodocorte.vercel.app
+   O painel do barbeiro: /admin
+
+NOTA: na primeira execução do banco, são criadas as tabelas e o usuário
+"gabriel" com a senha de ADMIN_SENHA (ou uma aleatória impressa nos logs
+da função, se ADMIN_SENHA não for definida).
+
+
+------------------------------------------------------------------
+B) PYTHONANYWHERE (alternativa GRÁTIS, mantém SQLite)
 ------------------------------------------------------------------
 
 1. Crie a conta em https://www.pythonanywhere.com/plans/

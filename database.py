@@ -1,8 +1,12 @@
 """
-Banco de dados do sistema de agendamento (SQLite).
+Banco de dados do sistema de agendamento.
 
-Tudo é criado automaticamente na primeira execução. Nada de instalação manual.
-O arquivo do banco fica em  instance/barbearia.db  e NÃO vai para o GitHub.
+Dois modos, escolhidos sozinho:
+  • com POSTGRES_URL / DATABASE_URL no ambiente  -> PostgreSQL (Vercel / Neon)
+  • sem a variável                              -> SQLite local (instance/barbearia.db)
+
+Nada é instalado para você pelo próprio app; o banco PostgreSQL é criado no painel
+da Vercel (Storage) e a URL vem como variável de ambiente.
 """
 
 import os
@@ -15,8 +19,13 @@ from werkzeug.security import generate_password_hash
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 INSTANCE_DIR = os.path.join(BASE_DIR, "instance")
 DB_PATH = os.environ.get("BARBEARIA_DB") or os.path.join(INSTANCE_DIR, "barbearia.db")
+PG_URL = os.environ.get("POSTGRES_URL") or os.environ.get("DATABASE_URL") or ""
 
 FUSO = timezone(timedelta(hours=-3))  # America/Sao_Paulo (sem horário de verão desde 2019)
+
+
+def eh_postgres():
+    return bool(PG_URL)
 
 
 def agora():
@@ -28,7 +37,16 @@ def agora_iso():
     return agora().strftime("%Y-%m-%d %H:%M:%S")
 
 
+def transacao_imediata(con):
+    """Abre a transação de escrita (SQLite usa BEGIN IMMEDIATE; no PostgreSQL é implícita)."""
+    if eh_postgres():
+        return
+    con.execute("BEGIN IMMEDIATE")
+
+
 def conectar():
+    if eh_postgres():
+        return _conectar_postgres()
     os.makedirs(os.path.dirname(DB_PATH), exist_ok=True)
     con = sqlite3.connect(DB_PATH, timeout=15)
     con.row_factory = sqlite3.Row
@@ -36,6 +54,58 @@ def conectar():
     con.execute("PRAGMA foreign_keys = ON")
     con.execute("PRAGMA journal_mode = WAL")
     return con
+
+
+class _CursorPg:
+    def __init__(self, cursor, resultado):
+        self._cursor = cursor
+        self.resultado = resultado
+
+    def fetchall(self):
+        return [dict(r) for r in self._cursor.fetchall()]
+
+    def fetchone(self):
+        r = self._cursor.fetchone()
+        return dict(r) if r else None
+
+    @property
+    def rowcount(self):
+        return self._cursor.rowcount
+
+
+class _ConexaoPg:
+    """Emula o mínimo de interface do sqlite3 (execute/fetchall/fetchone/commit)."""
+
+    def __init__(self, url):
+        import psycopg
+        from psycopg.rows import dict_row
+
+        self._c = psycopg.connect(url, row_factory=dict_row)
+
+    def execute(self, sql, parametros=()):
+        sql_pg = sql.replace("?", "%s")
+        cur = self._c.cursor()
+        cur.execute(sql_pg, tuple(parametros))
+        return _CursorPg(cur, cur.fetchall if False else None)
+
+    def executescript(self, sql):
+        for bloco in sql.split(";"):
+            bloco = bloco.strip()
+            if bloco:
+                self._c.cursor().execute(bloco.replace("?", "%s"))
+
+    def commit(self):
+        self._c.commit()
+
+    def rollback(self):
+        self._c.rollback()
+
+    def close(self):
+        self._c.close()
+
+
+def _conectar_postgres():
+    return _ConexaoPg(PG_URL)
 
 
 ESQUEMA = """
@@ -189,17 +259,23 @@ def criar_admin_inicial(con):
 
     if gerada:
         caminho = os.path.join(INSTANCE_DIR, "PRIMEIRO-ACESSO.txt")
-        os.makedirs(INSTANCE_DIR, exist_ok=True)
-        with open(caminho, "w", encoding="utf-8") as f:
-            f.write(
-                "ACESSO INICIAL AO PAINEL\n"
-                "========================\n\n"
-                f"Endereço : /login\n"
-                f"Usuário  : {usuario}\n"
-                f"Senha    : {senha}\n\n"
-                "Troque a senha em Configurações > Senha, na primeira vez que entrar.\n"
-                "Este arquivo é local e não vai para o GitHub.\n"
-            )
+        try:
+            os.makedirs(INSTANCE_DIR, exist_ok=True)
+            with open(caminho, "w", encoding="utf-8") as f:
+                f.write(
+                    "ACESSO INICIAL AO PAINEL\n"
+                    "========================\n\n"
+                    f"Endereço : /login\n"
+                    f"Usuário  : {usuario}\n"
+                    f"Senha    : {senha}\n\n"
+                    "Troque a senha em Configurações > Senha, na primeira vez que entrar.\n"
+                    "Este arquivo é local e não vai para o GitHub.\n"
+                )
+        except OSError:
+            # Vercel/servidor sem disco gravável: a senha fica nos logs
+            print("\n" + "=" * 58)
+            print(f" PRIMEIRO ACESSO  usuario={usuario}  senha={senha}")
+            print("=" * 58 + "\n")
         print("\n" + "=" * 58)
         print(" PRIMEIRO ACESSO AO PAINEL")
         print(f"   usuário: {usuario}")
@@ -213,20 +289,40 @@ def iniciar():
     """Cria o banco, as tabelas, a configuração padrão e o primeiro admin."""
     con = conectar()
     try:
-        con.executescript(ESQUEMA)
+        esquema = ESQUEMA.replace(
+            "INTEGER PRIMARY KEY AUTOINCREMENT", "SERIAL PRIMARY KEY"
+        ) if eh_postgres() else ESQUEMA
+        con.executescript(esquema)
 
         for chave, valor in GLOBAIS_PADRAO.items():
-            con.execute(
-                "INSERT OR IGNORE INTO globais (chave, valor) VALUES (?, ?)", (chave, valor)
-            )
+            if eh_postgres():
+                con.execute(
+                    "INSERT INTO globais (chave, valor) VALUES (?, ?) "
+                    "ON CONFLICT (chave) DO NOTHING",
+                    (chave, valor),
+                )
+            else:
+                con.execute(
+                    "INSERT OR IGNORE INTO globais (chave, valor) VALUES (?, ?)",
+                    (chave, valor),
+                )
 
         for dia in range(7):
-            con.execute(
-                "INSERT OR IGNORE INTO configuracoes "
-                "(dia_semana, aberto, abre, fecha, almoco_inicio, almoco_fim) "
-                "VALUES (?, ?, '08:00', '18:00', '11:00', '13:00')",
-                (dia, 0 if dia == 6 else 1),  # domingo fechado
-            )
+            if eh_postgres():
+                con.execute(
+                    "INSERT INTO configuracoes "
+                    "(dia_semana, aberto, abre, fecha, almoco_inicio, almoco_fim) "
+                    "VALUES (?, ?, '08:00', '18:00', '11:00', '13:00') "
+                    "ON CONFLICT (dia_semana) DO NOTHING",
+                    (dia, 0 if dia == 6 else 1),  # domingo fechado
+                )
+            else:
+                con.execute(
+                    "INSERT OR IGNORE INTO configuracoes "
+                    "(dia_semana, aberto, abre, fecha, almoco_inicio, almoco_fim) "
+                    "VALUES (?, ?, '08:00', '18:00', '11:00', '13:00')",
+                    (dia, 0 if dia == 6 else 1),  # domingo fechado
+                )
 
         if con.execute("SELECT COUNT(*) AS n FROM servicos").fetchone()["n"] == 0:
             for nome, desc, dur, preco, ordem in SERVICOS_PADRAO:

@@ -23,7 +23,7 @@ import push
 import rules
 from database import (
     BASE_DIR, INSTANCE_DIR, agora, agora_iso, conectar, config_global,
-    iniciar as iniciar_banco, salvar_global,
+    iniciar as iniciar_banco, salvar_global, transacao_imediata, eh_postgres,
 )
 
 app = Flask(__name__, static_folder="static", template_folder="templates")
@@ -210,7 +210,7 @@ def _criar_agendamento(con, servico, iso, hora, nome, whatsapp, origem="site", o
     agora_str = agora_iso()
 
     try:
-        con.execute("BEGIN IMMEDIATE")
+        transacao_imediata(con)
         con.execute(
             "INSERT INTO agendamentos (codigo, servico_id, data, hora_inicio, hora_fim, "
             "cliente_nome, cliente_whatsapp, status, observacao, origem, preco_centavos, "
@@ -666,8 +666,9 @@ def admin_status(agendamento_id):
         (novo, agora_str, agendamento_id),
     )
     if motivo:
+        nova_linha = "chr(10)" if eh_postgres() else "char(10)"
         con.execute(
-            "UPDATE agendamentos SET observacao = TRIM(observacao || char(10) || ?) WHERE id = ?",
+            f"UPDATE agendamentos SET observacao = TRIM(observacao || {nova_linha} || ?) WHERE id = ?",
             (f"[{rules.STATUS_ROTULO[novo]}] {motivo}", agendamento_id),
         )
     con.commit()
@@ -716,7 +717,7 @@ def admin_remarcar(agendamento_id):
 
     inicio = rules.hhmm_para_min(nova_hora)
     try:
-        con.execute("BEGIN IMMEDIATE")
+        transacao_imediata(con)
         con.execute(
             "UPDATE agendamentos SET data = ?, hora_inicio = ?, hora_fim = ?, "
             "atualizado_em = ? WHERE id = ?",
